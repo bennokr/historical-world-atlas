@@ -67,32 +67,34 @@
 
                 const allyears = Array.from(new Set(geos.features.flatMap( function(x) {
                     return x.properties.years.split(' ')
-                }))).map(Number).sort((a, b) => a - b)
+                }))).map(Number).filter((a) => (a != 94)).sort((a, b) => a - b)
                 
-                $( "#yearslider" ).slider({
-                    max: allyears.length - 1,
-                    min: 0,
-                    value: allyears.length - 1,
-                    slide: function( event, ui ) {
-                        window.year = allyears[ui.value]
-                        $('#yeardisplay').text(window.year)
-                    },
-                    change: function( event, ui ) {
+                function update( event, ui ) {
                         window.year = allyears[ui.value]
                         $('#yeardisplay').text(window.year)
 
                         regions.map(function(region) {
                             const years = region.feature.properties.years;
                             if (years.includes(window.year)) {
-                                map.addLayer(region.label)
+                                if (region.label != undefined) {
+                                    map.addLayer(region.label)
+                                }
                                 // console.log(region.label.options.icon)
                                 map.addLayer(region.layer)
                             } else {
-                                map.removeLayer(region.label)
+                                if (region.label != undefined) {
+                                    map.removeLayer(region.label)
+                                }
                                 map.removeLayer(region.layer)
                             }
                         })
                     }
+                $( "#yearslider" ).slider({
+                    max: allyears.length - 1,
+                    min: 0,
+                    value: allyears.length - 1,
+                    slide: update,
+                    change: update
                 })
 
                 var regions = [];
@@ -100,33 +102,31 @@
                     onEachFeature: function(feature, layer){
                         var ys = feature.properties.years;
                         feature.properties.years = ys.split(" ").map(Number)
-                        layer.bindPopup(feature.properties['NAME'])
 
-                        // layer.on({
-                        //     'click': function(e) {
-                        //         map.removeLayer(e.target);
-                        //     }
-                        // })
+                        if (feature.properties['NAME'] != 'unclaimed') {
+                            layer.bindPopup(feature.properties['NAME'])
 
-                        var latlng;
-                        if ('polylabel_lat' in feature.properties) {
-                            latlng = [
-                                feature.properties['polylabel_lat'],
-                                feature.properties['polylabel_lng']
-                            ]
-                        } else {
-                            const c = layer.getBounds().getCenter()
-                            latlng = [c.lat, c.lng]
+                            var latlng;
+                            if ('polylabel_lat' in feature.properties) {
+                                latlng = [
+                                    feature.properties['polylabel_lat'],
+                                    feature.properties['polylabel_lng']
+                                ]
+                            
+                                const label = L.marker(latlng, {
+                                    icon: L.divIcon({
+                                        className: 'text-label',
+                                        html: feature.properties['NAME']
+                                    }),
+                                    zIndexOffset: 1000
+                                })
+                                regions.push({feature:feature, layer:layer, label:label})
+                            } else {
+                                regions.push({feature:feature, layer:layer})
+                            }
                         }
-                        const label = L.marker(latlng, {
-                            icon: L.divIcon({
-                                className: 'text-label',
-                                html: feature.properties['NAME']
-                            }),
-                            zIndexOffset: 1000
-                        })
 
-                        regions.push({feature:feature, layer:layer, label:label})
+                        
                     }
                 })//.addTo(map)
 
