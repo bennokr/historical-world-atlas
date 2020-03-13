@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Historical World Atlas</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+           integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+        crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+        integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+        crossorigin=""></script>
+    
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+
+    <script src="https://bundle.run/polylabel@1.0.2"></script>
+
+    <style type="text/css">
+        html, body { margin: 0px; font-family: sans-serif; }
+        #map { height: 512px; width:80%; }
+        .leaflet-container { background: #000; }
+        #info { width:20%; }
+        #yeardisplay { text-align:center; }
+        #yearslider { box-sizing: border-box; margin: 0 20px; }
+        .text-label {
+            color:white;
+            font-weight: bold;
+            font-size: 16pt;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align:center;
+        }
+    </style>
+</head>
+<body>
+    <div style="display:flex;">
+        <div id="map"></div>
+        <div id="info">
+            <p>
+                <h1 id="yeardisplay"></h1>
+                <div id="yearslider"></div>
+            </p>
+
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(function(){
+            $('#map').css({'height': $(window).height()})
+
+            var map = L.map('map', {
+              minZoom: 0,
+              maxZoom: 6
+            }).setView([52, 5], 6)
+            L.tileLayer('./tiles_gif/{z}/{x}/{y}.gif').addTo(map)
+            
+            $.getJSON('/cntry.clean.polylabel.topojson', function(topos){
+                 
+                const geos = topojson.feature(topos, topos.objects.regions)
+
+                const allyears = Array.from(new Set(geos.features.flatMap( function(x) {
+                    return x.properties.years.split(' ')
+                }))).map(Number).sort((a, b) => a - b)
+                
+                $( "#yearslider" ).slider({
+                    max: allyears.length - 1,
+                    min: 0,
+                    value: allyears.length - 1,
+                    slide: function( event, ui ) {
+                        window.year = allyears[ui.value]
+                        $('#yeardisplay').text(window.year)
+                    },
+                    change: function( event, ui ) {
+                        window.year = allyears[ui.value]
+                        $('#yeardisplay').text(window.year)
+
+                        regions.map(function(region) {
+                            const years = region.feature.properties.years;
+                            if (years.includes(window.year)) {
+                                map.addLayer(region.label)
+                                // console.log(region.label.options.icon)
+                                map.addLayer(region.layer)
+                            } else {
+                                map.removeLayer(region.label)
+                                map.removeLayer(region.layer)
+                            }
+                        })
+                    }
+                })
+
+                var regions = [];
+                L.geoJSON(geos, {
+                    onEachFeature: function(feature, layer){
+                        var ys = feature.properties.years;
+                        feature.properties.years = ys.split(" ").map(Number)
+                        layer.bindPopup(feature.properties['NAME'])
+
+                        // layer.on({
+                        //     'click': function(e) {
+                        //         map.removeLayer(e.target);
+                        //     }
+                        // })
+
+                        var latlng;
+                        if ('polylabel_lat' in feature.properties) {
+                            latlng = [
+                                feature.properties['polylabel_lat'],
+                                feature.properties['polylabel_lng']
+                            ]
+                        } else {
+                            const c = layer.getBounds().getCenter()
+                            latlng = [c.lat, c.lng]
+                        }
+                        const label = L.marker(latlng, {
+                            icon: L.divIcon({
+                                className: 'text-label',
+                                html: feature.properties['NAME']
+                            }),
+                            zIndexOffset: 1000
+                        })
+
+                        regions.push({feature:feature, layer:layer, label:label})
+                    }
+                })//.addTo(map)
+
+                $('#yearslider').slider('value', allyears.length-1)
+            });
+
+            
+        })
+    </script>
+</body>
+</html>
