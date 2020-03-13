@@ -60,7 +60,7 @@
             }).setView([52, 5], 6)
             L.tileLayer('./tiles_gif/{z}/{x}/{y}.gif').addTo(map)
             
-            $.getJSON('/cntry.clean.polylabel.topojson', function(topos){
+            $.getJSON('cntry.clean.polylabel.topojson', function(topos){
                  
                 const geos = topojson.feature(topos, topos.objects.regions)
 
