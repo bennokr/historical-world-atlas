@@ -67,7 +67,7 @@
 
                 const allyears = Array.from(new Set(geos.features.flatMap( function(x) {
                     return x.properties.years.split(' ')
-                }))).map(Number).filter((a) => (a != 94)).sort((a, b) => a - b)
+                }))).map(Number).sort((a, b) => a - b)
                 
                 function update( event, ui ) {
                         window.year = allyears[ui.value]
@@ -103,7 +103,7 @@
                         var ys = feature.properties.years;
                         feature.properties.years = ys.split(" ").map(Number)
 
-                        if (feature.properties['NAME'] != 'unclaimed') {
+                        if (feature.properties['NAME'] != 'unclaimed' && feature.properties['NAME'] != 'Africa') {
                             layer.bindPopup(feature.properties['NAME'])
 
                             var latlng;
