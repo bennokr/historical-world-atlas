@@ -6,3 +6,6 @@ node_modules
 /topo
 /downloads
 /build
+# Cloned reference repositories (external, not part of this project)
+/cliopatria/
+/geoparquet-duckdb-deckgl-demo/
