@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cliopatria — Historical World Atlas</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺</text></svg>" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+
+    <header id="header">
+      <div id="brand">
+        <h1>Cliopatria</h1>
+        <span id="subtitle">Historical World Atlas · 3400 BCE – 2024 CE</span>
+      </div>
+
+      <div id="time-controls">
+        <button id="play-btn" title="Animate through time" disabled>▶</button>
+        <div id="year-display">
+          <span id="year-label">3400 BCE</span>
+        </div>
+        <input type="range" id="year-slider"
+          min="-3400" max="2024" value="-3400" step="50" disabled />
+        <span id="year-max-label">2024 CE</span>
+      </div>
+
+      <div id="status-bar">
+        <span id="status-icon">⏳</span>
+        <span id="status-text">Initializing DuckDB-wasm…</span>
+      </div>
+    </header>
+
+    <div id="body-layout">
+
+      <aside id="sidebar">
+
+        <section id="query-panel">
+          <div class="panel-header">
+            <span class="panel-title">GIS SQL Query</span>
+            <div class="panel-actions">
+              <button id="reset-query-btn" title="Reset to default query">↺</button>
+              <button id="run-btn" title="Run query (Ctrl+Enter)" disabled>Run ▶</button>
+            </div>
+          </div>
+          <div id="editor-wrapper">
+            <textarea id="sql-editor"
+              spellcheck="false"
+              placeholder="Loading DuckDB…"
+              disabled></textarea>
+          </div>
+          <div id="query-info">
+            <span id="query-duration"></span>
+            <span id="query-error" class="error"></span>
+          </div>
+        </section>
+
+        <section id="schema-panel">
+          <div class="panel-header">
+            <span class="panel-title">Table Schema</span>
+            <button id="toggle-schema-btn" class="toggle-btn">▾</button>
+          </div>
+          <div id="schema-content">
+            <table class="schema-table">
+              <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td>Name</td><td>VARCHAR</td><td>Polity name</td></tr>
+                <tr><td>FromYear</td><td>INTEGER</td><td>Start year (negative = BCE)</td></tr>
+                <tr><td>ToYear</td><td>INTEGER</td><td>End year</td></tr>
+                <tr><td>Area</td><td>DOUBLE</td><td>Area in km²</td></tr>
+                <tr><td>Type</td><td>VARCHAR</td><td>Record type (POLITY)</td></tr>
+                <tr><td>Wikipedia</td><td>VARCHAR</td><td>Wikipedia article title</td></tr>
+                <tr><td>SeshatID</td><td>VARCHAR</td><td>Seshat database ID</td></tr>
+                <tr><td>MemberOf</td><td>VARCHAR</td><td>Parent polity name</td></tr>
+                <tr><td>Components</td><td>VARCHAR</td><td>Sub-components</td></tr>
+                <tr><td>Color</td><td>VARCHAR</td><td>Hex color (#rrggbb)</td></tr>
+                <tr><td>geometry</td><td>GEOMETRY</td><td>WGS84 polygon/multipolygon</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="results-panel">
+          <div class="panel-header">
+            <span class="panel-title">Results</span>
+            <span id="results-count" class="badge"></span>
+          </div>
+          <div id="results-content">
+            <p class="hint">Query results will appear here.</p>
+          </div>
+        </section>
+
+      </aside>
+
+      <div id="map-wrapper">
+        <div id="map"></div>
+        <div id="map-legend">
+          <strong>Cliopatria</strong>
+          <p>Hover or click a region for details.</p>
+          <p>Colored by polity, sized by territory.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
