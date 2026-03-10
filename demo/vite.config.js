@@ -1,20 +1,21 @@
 import { defineConfig } from 'vite'
 
+const ISOLATION_HEADERS = {
+  // 'credentialless' allows cross-origin subresources (map tiles) without needing
+  // CORP headers, while still enabling SharedArrayBuffer for DuckDB-wasm.
+  'Cross-Origin-Embedder-Policy': 'credentialless',
+  'Cross-Origin-Opener-Policy': 'same-origin',
+}
+
 export default defineConfig({
   optimizeDeps: {
     exclude: ['@duckdb/duckdb-wasm'],
   },
+  assetsInclude: ['**/*.wasm'],
   server: {
-    headers: {
-      // Required for SharedArrayBuffer (used by DuckDB-wasm multi-threading)
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-    },
+    headers: ISOLATION_HEADERS,
   },
   preview: {
-    headers: {
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Opener-Policy': 'same-origin',
-    },
+    headers: ISOLATION_HEADERS,
   },
 })

@@ -13,6 +13,7 @@
  */
 
 import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import { initDB, runSQL, buildYearQuery, fmtYear } from './duckdb.js'
 
 // ─── DOM refs ─────────────────────────────────────────────────────────────────

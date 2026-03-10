@@ -57,7 +57,7 @@ ORDER BY 1;
 SELECT Name, MIN(FromYear) AS start, MAX(ToYear) AS end
 FROM read_parquet('cliopatria.parquet')
 WHERE ST_Intersects(
-        ST_GeomFromWKB(geometry),
+        geometry,
         ST_GeomFromText('POLYGON((-10 36, 3 36, 3 44, -10 44, -10 36))')
       )
 GROUP BY Name
@@ -66,7 +66,7 @@ ORDER BY start;
 
 ```sql
 -- GeoJSON of the Roman Empire at its greatest extent (117 CE)
-SELECT Name, ST_AsGeoJSON(ST_GeomFromWKB(geometry)) AS geom_json,
+SELECT Name, ST_AsGeoJSON(geometry) AS geom_json,
        ROUND(Area / 1e6, 2) AS area_Mkm2
 FROM read_parquet('cliopatria.parquet')
 WHERE Name = 'Roman Empire'

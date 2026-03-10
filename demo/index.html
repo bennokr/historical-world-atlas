@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cliopatria — Historical World Atlas</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺</text></svg>" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <!-- Leaflet CSS imported from npm via main.js to avoid external CDN dependency -->
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
@@ -23,7 +23,7 @@
           <span id="year-label">3400 BCE</span>
         </div>
         <input type="range" id="year-slider"
-          min="-3400" max="2024" value="-3400" step="50" disabled />
+          min="-3400" max="2024" value="-3400" step="1" disabled />
         <span id="year-max-label">2024 CE</span>
       </div>
 
